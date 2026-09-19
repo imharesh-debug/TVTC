@@ -6,7 +6,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<title>إجراءات البريد الوارد</title>
+<title>إجراءات البريد الوارد والصادر</title>
 <style>
   :root{
     --navy:#1B2A44;
@@ -126,6 +126,20 @@
     padding:5px 12px; border-radius:999px;
   }
 
+  /* type switcher */
+  .type-switch{
+    margin-top:24px; display:inline-flex; gap:4px; background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.18); border-radius:999px; padding:4px;
+    position:relative; z-index:1;
+  }
+  .type-btn{
+    border:none; background:none; color:#DCE6EE; font-family:var(--font-body);
+    font-weight:800; font-size:1rem; padding:11px 26px; border-radius:999px; cursor:pointer;
+    transition:.15s; display:flex; align-items:center; gap:8px;
+  }
+  .type-btn.active{background:var(--teal); color:#fff;}
+  .type-btn:not(.active):hover{background:rgba(255,255,255,.08);}
+
   /* nav */
   nav.tabs{
     position:sticky; top:env(safe-area-inset-top,0px);
@@ -152,6 +166,8 @@
   section.panel{display:none;}
   section.panel.active{display:block; animation:fade .35s ease;}
   @keyframes fade{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;}}
+  .type-block{display:none;}
+  .type-block.active{display:block;}
 
   .section-head{margin-bottom:22px;}
   .section-head .kicker{
@@ -277,6 +293,48 @@
   .memo-box{border:1px solid var(--line); border-radius:12px; padding:20px; background:var(--surface-2); font-size:1rem;}
   .memo-box .memo-line{border-bottom:1px dotted var(--ink-soft); padding-block:8px;}
 
+  /* envelope */
+  .envelope{
+    position:relative; border:2px solid var(--navy); border-radius:8px; overflow:hidden;
+    background:var(--surface-2); min-height:280px; padding:18px;
+  }
+  .envelope::before, .envelope::after{
+    content:""; position:absolute; inset-inline:0; height:16px;
+    background-image:repeating-linear-gradient(-45deg, var(--navy) 0 14px, transparent 14px 28px, #B23A3A 28px 42px, transparent 42px 56px);
+  }
+  .envelope::before{top:0;}
+  .envelope::after{bottom:0;}
+  .env-inner{position:relative; padding-block:28px; display:flex; flex-direction:column; gap:14px; height:100%;}
+  .env-stamp{
+    align-self:flex-end; width:110px; padding:8px 10px; border:2px dashed var(--ink-soft);
+    border-radius:6px; font-size:.78rem; text-align:center; color:var(--ink-soft); font-weight:700;
+  }
+  .env-block{max-width:82%; padding:10px 14px; border-radius:8px; font-size:.95rem; line-height:1.7;}
+  .env-sender{align-self:flex-start; background:var(--gold-tint); color:var(--navy); font-weight:600; max-width:60%;}
+  .env-receiver{align-self:flex-end; background:#FDF3B0; color:var(--navy); font-weight:700;}
+  .env-tag{display:inline-block; font-size:.72rem; font-weight:800; margin-bottom:4px; opacity:.75;}
+  .env-airmail{
+    align-self:flex-start; margin-top:auto; background:var(--navy); color:#fff; font-size:.75rem;
+    font-weight:800; padding:8px 12px; border-radius:6px; line-height:1.5;
+  }
+  @media (max-width:560px){
+    .env-block{max-width:95%;}
+    .env-sender{max-width:80%;}
+  }
+
+  .fold-steps{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:18px;}
+  @media (max-width:640px){.fold-steps{grid-template-columns:1fr;}}
+  .fold-step{background:var(--surface-2); border:1px solid var(--line); border-radius:12px; padding:16px;}
+  .fold-step .letter{
+    display:inline-flex; width:30px; height:30px; border-radius:50%; background:var(--teal); color:#fff;
+    align-items:center; justify-content:center; font-weight:800; margin-bottom:10px;
+  }
+  .fold-step p{font-size:.95rem; color:var(--ink-soft);}
+
+  .checklist{list-style:none; margin:14px 0 0; padding:0; display:flex; flex-direction:column; gap:8px;}
+  .checklist li{display:flex; gap:10px; align-items:flex-start; font-size:1rem;}
+  .checklist li::before{content:"✓"; color:var(--teal); font-weight:900; flex:none;}
+
   /* activities */
   .activity-card{
     background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
@@ -335,7 +393,6 @@
     display:flex; gap:10px; align-items:flex-start;
   }
   footer.note .ic{flex:none; font-size:1.1rem;}
-  .print-hint{display:none;}
 </style>
 </head>
 <body>
@@ -352,7 +409,7 @@
     </div>
     <div class="top-title">
       <span class="eyebrow">◆ مادة تدريبية تفاعلية</span>
-      <h1>إجراءات البريد الوارد</h1>
+      <h1>إجراءات البريد الوارد والصادر</h1>
     </div>
     <div class="breadcrumbs">
       <span>القواعد العامة</span>
@@ -361,203 +418,350 @@
       <span>نشاط ترتيب</span>
       <span>اختبار قصير</span>
     </div>
+    <div class="type-switch" id="typeSwitch">
+      <button class="type-btn active" data-type="in">📥 البريد الوارد</button>
+      <button class="type-btn" data-type="out">📤 البريد الصادر</button>
+    </div>
   </div>
 </header>
 
-<nav class="tabs">
-  <div class="tabs-inner" id="tabsInner">
-    <button class="tab-btn active" data-panel="p-rules">القواعد العامة</button>
-    <button class="tab-btn" data-panel="p-steps">خطوات المعالجة</button>
-    <button class="tab-btn" data-panel="p-forms">النماذج</button>
-    <button class="tab-btn" data-panel="p-order">نشاط: رتّب الخطوات</button>
-    <button class="tab-btn" data-panel="p-quiz">اختبار قصير</button>
-  </div>
-</nav>
+<!-- ================= INCOMING MAIL ================= -->
+<div class="type-block active" id="type-in">
 
-<main class="wrap">
-
-  <!-- RULES -->
-  <section class="panel active" id="p-rules">
-    <div class="section-head">
-      <span class="kicker">01 — قبل البدء</span>
-      <h2>القواعد العامة في تنظيم أعمال البريد</h2>
-      <p class="lede">مجموعة القواعد الأساسية التي تحكم سير العمل في وحدة البريد بالمنشأة، وتُراعى قبل الشروع في أي إجراء تفصيلي.</p>
+  <nav class="tabs">
+    <div class="tabs-inner">
+      <button class="tab-btn active" data-group="in" data-panel="p-rules-in">القواعد العامة</button>
+      <button class="tab-btn" data-group="in" data-panel="p-steps-in">خطوات المعالجة</button>
+      <button class="tab-btn" data-group="in" data-panel="p-forms-in">النماذج</button>
+      <button class="tab-btn" data-group="in" data-panel="p-order-in">نشاط: رتّب الخطوات</button>
+      <button class="tab-btn" data-group="in" data-panel="p-quiz-in">اختبار قصير</button>
     </div>
-    <div class="rules-grid">
-      <div class="rule-card"><div class="rule-num">١</div><p>ضبط سير الحركة في البريد الوارد والصادر، وتجنّب الخطوات غير الضرورية التي تُبطئ الإنجاز.</p></div>
-      <div class="rule-card"><div class="rule-num">٢</div><p>استخدام البريد السريع في الحالات المستعجلة التي تتطلب سرعة الوصول أو الرد.</p></div>
-      <div class="rule-card"><div class="rule-num">٣</div><p>الدقة والوضوح في تدوين جميع البيانات البريدية؛ فالخطأ في بيان واحد قد يُعطّل المعاملة كاملة.</p></div>
-      <div class="rule-card"><div class="rule-num">٤</div><p>توحيد جهة (وحدة) واحدة لاستقبال البريد وتسجيله داخل المنشأة لضمان التتبع والمساءلة.</p></div>
-    </div>
+  </nav>
 
-    <div class="definition-card">
-      <h3>ما المقصود بالبريد الوارد؟</h3>
-      <p>يُقصد بالبريد الوارد جميع المراسلات التي تصل إلى المنشأة عبر وسائل الاتصال المختلفة — البريد العادي أو الممتاز، والفاكس، والبريد الإلكتروني، وما يُسلَّم باليد. ولإنجاز معالجته بالكفاءة المطلوبة، لا بد من اتّباع مجموعة إجراءات منظَّمة منذ لحظة استلامه وحتى إحالته للجهة المختصة ومتابعة الرد عليه.</p>
-    </div>
-  </section>
+  <main class="wrap">
 
-  <!-- STEPS -->
-  <section class="panel" id="p-steps">
-    <div class="section-head">
-      <span class="kicker">02 — ثماني خطوات</span>
-      <h2>إجراءات معالجة البريد الوارد</h2>
-      <p class="lede">تابع الخطوات بالترتيب من اليمين، أو اضغط على أي خطوة مباشرة. بعض الخطوات مرتبطة بنموذج رسمي — اضغط الزر للانتقال إليه.</p>
-    </div>
-
-    <div class="stepper-shell">
-      <div class="step-rail" id="stepRail"></div>
-      <div>
-        <div class="step-card" id="stepCard"></div>
-        <div class="step-nav">
-          <button class="ghost-btn" id="prevStep">◀ السابقة</button>
-          <button class="ghost-btn" id="nextStep">التالية ▶</button>
-        </div>
+    <section class="panel active" id="p-rules-in">
+      <div class="section-head">
+        <span class="kicker">01 — قبل البدء</span>
+        <h2>القواعد العامة في تنظيم أعمال البريد</h2>
+        <p class="lede">مجموعة القواعد الأساسية التي تحكم سير العمل في وحدة البريد بالمنشأة، وتُراعى قبل الشروع في أي إجراء تفصيلي.</p>
       </div>
-    </div>
-  </section>
+      <div class="rules-grid">
+        <div class="rule-card"><div class="rule-num">١</div><p>ضبط سير الحركة في البريد الوارد والصادر، وتجنّب الخطوات غير الضرورية التي تُبطئ الإنجاز.</p></div>
+        <div class="rule-card"><div class="rule-num">٢</div><p>استخدام البريد السريع في الحالات المستعجلة التي تتطلب سرعة الوصول أو الرد.</p></div>
+        <div class="rule-card"><div class="rule-num">٣</div><p>الدقة والوضوح في تدوين جميع البيانات البريدية؛ فالخطأ في بيان واحد قد يُعطّل المعاملة كاملة.</p></div>
+        <div class="rule-card"><div class="rule-num">٤</div><p>توحيد جهة (وحدة) واحدة لاستقبال البريد وتسجيله داخل المنشأة لضمان التتبع والمساءلة.</p></div>
+      </div>
 
-  <!-- FORMS -->
-  <section class="panel" id="p-forms">
-    <div class="section-head">
-      <span class="kicker">03 — نماذج معتمدة</span>
-      <h2>النماذج المستخدمة في البريد الوارد</h2>
-      <p class="lede">أربعة نماذج ترافق خطوات المعالجة: الختم، بطاقة التوجيه، دفتر التسجيل، ومذكرة المتابعة.</p>
-    </div>
+      <div class="definition-card">
+        <h3>ما المقصود بالبريد الوارد؟</h3>
+        <p>يُقصد بالبريد الوارد جميع المراسلات التي تصل إلى المنشأة عبر وسائل الاتصال المختلفة — البريد العادي أو الممتاز، والفاكس، والبريد الإلكتروني، وما يُسلَّم باليد. ولإنجاز معالجته بالكفاءة المطلوبة، لا بد من اتّباع مجموعة إجراءات منظَّمة منذ لحظة استلامه وحتى إحالته للجهة المختصة ومتابعة الرد عليه.</p>
+      </div>
+    </section>
 
-    <div class="forms-grid">
-      <div class="form-card" id="form-stamp">
-        <div class="fc-head"><h3>خَتم البريد الوارد</h3><span class="badge">شكل 38</span></div>
-        <div class="fc-body">
-          <p style="margin-bottom:14px; color:var(--ink-soft);">يُطبع هذا الختم على أول صفحة من كل رسالة واردة فور استلامها، لتوثيق بياناتها الأساسية.</p>
-          <div class="stamp-box">
-            <div class="stamp-row">
-              <div class="stamp-cell">إلى: <small>اسم الجهة الموجّهة إليها الرسالة</small></div>
-            </div>
-            <div class="stamp-row">
-              <div class="stamp-cell">رقم الوارد</div>
-              <div class="stamp-cell">المرفقات</div>
-            </div>
-            <div class="stamp-row">
-              <div class="stamp-cell">تاريخ الورود</div>
-              <div class="stamp-cell">رقم وتاريخ الرد</div>
-            </div>
-            <div class="stamp-row">
-              <div class="stamp-cell">الوقت</div>
-            </div>
+    <section class="panel" id="p-steps-in">
+      <div class="section-head">
+        <span class="kicker">02 — ثماني خطوات</span>
+        <h2>إجراءات معالجة البريد الوارد</h2>
+        <p class="lede">تابع الخطوات بالترتيب من اليمين، أو اضغط على أي خطوة مباشرة. بعض الخطوات مرتبطة بنموذج رسمي — اضغط الزر للانتقال إليه.</p>
+      </div>
+      <div class="stepper-shell">
+        <div class="step-rail" id="stepRailIn"></div>
+        <div>
+          <div class="step-card" id="stepCardIn"></div>
+          <div class="step-nav">
+            <button class="ghost-btn" id="prevStepIn">◀ السابقة</button>
+            <button class="ghost-btn" id="nextStepIn">التالية ▶</button>
           </div>
         </div>
       </div>
+    </section>
 
-      <div class="form-card" id="form-guidance">
-        <div class="fc-head"><h3>بطاقة توجيه وشرح</h3><span class="badge">شكل 39</span></div>
-        <div class="fc-body">
-          <p style="margin-bottom:14px; color:var(--ink-soft);">يستخدمها المدير أو المسؤول لتوجيه المعاملة إلى الإدارة المختصة مع إضافة شرح أو تعليمات.</p>
-          <div class="card-form-fields">
-            <div class="field-line"><b>وزارة</b><span class="fill"></span></div>
-            <div class="field-line"><b>رقم المعاملة</b><span class="fill"></span></div>
-            <div class="field-line"><b>واردة من</b><span class="fill"></span></div>
-            <div class="field-line"><b>تاريخها</b><span class="fill"></span></div>
-            <div class="field-line"><b>تاريخ الورود</b><span class="fill"></span></div>
-            <div class="field-line"><b>إلى</b><span class="fill"></span></div>
-          </div>
-          <div class="field-line" style="margin-top:6px;"><b>الموضوع</b><span class="fill"></span></div>
-          <div class="field-line"><b>مع التحية إلى</b><span class="fill"></span></div>
-
-          <div class="checkbox-cols">
-            <div>
-              <div class="cb-item"><span class="cb-box">✓</span> الإدارة المالية</div>
-              <div class="cb-item"><span class="cb-box"></span> إدارة التخطيط</div>
-              <div class="cb-item"><span class="cb-box"></span> المستشار القانوني</div>
-            </div>
-            <div>
-              <div class="cb-item"><span class="cb-box"></span> الإدارة الهندسية</div>
-              <div class="cb-item"><span class="cb-box">✓</span> المرافق المالي</div>
-              <div class="cb-item"><span class="cb-box"></span> إدارة البحوث</div>
-            </div>
-          </div>
-          <div style="margin-top:16px;">
-            <b style="color:var(--navy);">الشرح:</b>
-            <div style="border-bottom:1px dotted var(--ink-soft); height:16px; margin-top:10px;"></div>
-            <div style="border-bottom:1px dotted var(--ink-soft); height:16px; margin-top:10px;"></div>
-          </div>
-        </div>
+    <section class="panel" id="p-forms-in">
+      <div class="section-head">
+        <span class="kicker">03 — نماذج معتمدة</span>
+        <h2>النماذج المستخدمة في البريد الوارد</h2>
+        <p class="lede">أربعة نماذج ترافق خطوات المعالجة: الختم، بطاقة التوجيه، دفتر التسجيل، ومذكرة المتابعة.</p>
       </div>
 
-      <div class="form-card" id="form-register">
-        <div class="fc-head"><h3>دفتر البريد الوارد</h3><span class="badge">شكل 40</span></div>
-        <div class="fc-body">
-          <p style="margin-bottom:14px; color:var(--ink-soft);">سجل يومي تُقيَّد فيه كل رسالة واردة فور ختمها، ليكون مرجعًا رسميًا لحركة البريد.</p>
-          <div class="table-scroll">
-            <table class="reg-table">
-              <thead>
-                <tr>
-                  <th>رقم الوارد</th><th>التاريخ</th><th>الجهة المرسِلة</th><th>الموضوع</th><th>المرفقات</th>
-                  <th>رقم وتاريخ المكاتبة لدى المرسِل</th><th>الجهة المرسَل إليها</th><th>الجهة المختصة</th><th>التوقيع</th><th>تاريخ المتابعة</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr><td>١٢٤</td><td>٢٠٢٦/٠٣/٠١</td><td>وزارة الموارد البشرية</td><td>طلب إفادة</td><td>٢</td><td>—</td><td>الإدارة العامة</td><td>الشؤون الإدارية</td><td>—</td><td>٢٠٢٦/٠٣/٠٥</td></tr>
-                <tr><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td></tr>
-              </tbody>
-            </table>
+      <div class="forms-grid">
+        <div class="form-card" id="form-stamp">
+          <div class="fc-head"><h3>خَتم البريد الوارد</h3><span class="badge">شكل 38</span></div>
+          <div class="fc-body">
+            <p style="margin-bottom:14px; color:var(--ink-soft);">يُطبع هذا الختم على أول صفحة من كل رسالة واردة فور استلامها، لتوثيق بياناتها الأساسية.</p>
+            <div class="stamp-box">
+              <div class="stamp-row"><div class="stamp-cell">إلى: <small>اسم الجهة الموجّهة إليها الرسالة</small></div></div>
+              <div class="stamp-row"><div class="stamp-cell">رقم الوارد</div><div class="stamp-cell">المرفقات</div></div>
+              <div class="stamp-row"><div class="stamp-cell">تاريخ الورود</div><div class="stamp-cell">رقم وتاريخ الرد</div></div>
+              <div class="stamp-row"><div class="stamp-cell">الوقت</div></div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="form-card" id="form-followup">
-        <div class="fc-head"><h3>مذكرة متابعة</h3><span class="badge">شكل 41</span></div>
-        <div class="fc-body">
-          <p style="margin-bottom:14px; color:var(--ink-soft);">تُرسَل إلى الإدارة التي أُحيلت إليها المعاملة عند تأخر ردّها، لتذكيرها وطلب الإفادة بما تم اتخاذه.</p>
-          <div class="memo-box">
-            <div class="memo-line"><b>من مدير مكتب:</b> ..........</div>
-            <div class="memo-line"><b>إلى:</b> ..........</div>
-            <p style="margin-top:12px;">السلام عليكم ورحمة الله وبركاته، وبعد:</p>
-            <p style="margin-top:6px;">تجدون أدناه بيانًا بالمعاملات التي تم تسليمها لإدارتكم:</p>
-            <div class="table-scroll" style="margin-top:12px;">
-              <table class="reg-table" style="min-width:600px;">
-                <thead><tr><th>رقم الوارد</th><th>تاريخ ورودها</th><th>الجهة المرسِلة</th><th>موضوع المعاملة</th><th>مستلم المعاملة</th><th>تاريخ المتابعة</th></tr></thead>
-                <tbody><tr><td></td><td></td><td></td><td></td><td></td><td></td></tr></tbody>
+        <div class="form-card" id="form-guidance">
+          <div class="fc-head"><h3>بطاقة توجيه وشرح</h3><span class="badge">شكل 39</span></div>
+          <div class="fc-body">
+            <p style="margin-bottom:14px; color:var(--ink-soft);">يستخدمها المدير أو المسؤول لتوجيه المعاملة إلى الإدارة المختصة مع إضافة شرح أو تعليمات.</p>
+            <div class="card-form-fields">
+              <div class="field-line"><b>وزارة</b><span class="fill"></span></div>
+              <div class="field-line"><b>رقم المعاملة</b><span class="fill"></span></div>
+              <div class="field-line"><b>واردة من</b><span class="fill"></span></div>
+              <div class="field-line"><b>تاريخها</b><span class="fill"></span></div>
+              <div class="field-line"><b>تاريخ الورود</b><span class="fill"></span></div>
+              <div class="field-line"><b>إلى</b><span class="fill"></span></div>
+            </div>
+            <div class="field-line" style="margin-top:6px;"><b>الموضوع</b><span class="fill"></span></div>
+            <div class="field-line"><b>مع التحية إلى</b><span class="fill"></span></div>
+
+            <div class="checkbox-cols">
+              <div>
+                <div class="cb-item"><span class="cb-box">✓</span> الإدارة المالية</div>
+                <div class="cb-item"><span class="cb-box"></span> إدارة التخطيط</div>
+                <div class="cb-item"><span class="cb-box"></span> المستشار القانوني</div>
+              </div>
+              <div>
+                <div class="cb-item"><span class="cb-box"></span> الإدارة الهندسية</div>
+                <div class="cb-item"><span class="cb-box">✓</span> المرافق المالي</div>
+                <div class="cb-item"><span class="cb-box"></span> إدارة البحوث</div>
+              </div>
+            </div>
+            <div style="margin-top:16px;">
+              <b style="color:var(--navy);">الشرح:</b>
+              <div style="border-bottom:1px dotted var(--ink-soft); height:16px; margin-top:10px;"></div>
+              <div style="border-bottom:1px dotted var(--ink-soft); height:16px; margin-top:10px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-card" id="form-register">
+          <div class="fc-head"><h3>دفتر البريد الوارد</h3><span class="badge">شكل 40</span></div>
+          <div class="fc-body">
+            <p style="margin-bottom:14px; color:var(--ink-soft);">سجل يومي تُقيَّد فيه كل رسالة واردة فور ختمها، ليكون مرجعًا رسميًا لحركة البريد.</p>
+            <div class="table-scroll">
+              <table class="reg-table">
+                <thead>
+                  <tr>
+                    <th>رقم الوارد</th><th>التاريخ</th><th>الجهة المرسِلة</th><th>الموضوع</th><th>المرفقات</th>
+                    <th>رقم وتاريخ المكاتبة لدى المرسِل</th><th>الجهة المرسَل إليها</th><th>الجهة المختصة</th><th>التوقيع</th><th>تاريخ المتابعة</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>١٢٤</td><td>٢٠٢٦/٠٣/٠١</td><td>وزارة الموارد البشرية</td><td>طلب إفادة</td><td>٢</td><td>—</td><td>الإدارة العامة</td><td>الشؤون الإدارية</td><td>—</td><td>٢٠٢٦/٠٣/٠٥</td></tr>
+                  <tr><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td></tr>
+                </tbody>
               </table>
             </div>
-            <p style="margin-top:14px;">وحيث إنه حتى تاريخه لم يردنا ما يفيد بما تم اتخاذه بشأنها، نرجو التكرم بالرد على ذلك.</p>
+          </div>
+        </div>
+
+        <div class="form-card" id="form-followup">
+          <div class="fc-head"><h3>مذكرة متابعة</h3><span class="badge">شكل 41</span></div>
+          <div class="fc-body">
+            <p style="margin-bottom:14px; color:var(--ink-soft);">تُرسَل إلى الإدارة التي أُحيلت إليها المعاملة عند تأخر ردّها، لتذكيرها وطلب الإفادة بما تم اتخاذه.</p>
+            <div class="memo-box">
+              <div class="memo-line"><b>من مدير مكتب:</b> ..........</div>
+              <div class="memo-line"><b>إلى:</b> ..........</div>
+              <p style="margin-top:12px;">السلام عليكم ورحمة الله وبركاته، وبعد:</p>
+              <p style="margin-top:6px;">تجدون أدناه بيانًا بالمعاملات التي تم تسليمها لإدارتكم:</p>
+              <div class="table-scroll" style="margin-top:12px;">
+                <table class="reg-table" style="min-width:600px;">
+                  <thead><tr><th>رقم الوارد</th><th>تاريخ ورودها</th><th>الجهة المرسِلة</th><th>موضوع المعاملة</th><th>مستلم المعاملة</th><th>تاريخ المتابعة</th></tr></thead>
+                  <tbody><tr><td></td><td></td><td></td><td></td><td></td><td></td></tr></tbody>
+                </table>
+              </div>
+              <p style="margin-top:14px;">وحيث إنه حتى تاريخه لم يردنا ما يفيد بما تم اتخاذه بشأنها، نرجو التكرم بالرد على ذلك.</p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ORDER ACTIVITY -->
-  <section class="panel" id="p-order">
-    <div class="section-head">
-      <span class="kicker">04 — نشاط تدريبي</span>
-      <h2>رتّب خطوات معالجة البريد الوارد</h2>
-      <p class="lede">اضغط على الخطوات أدناه بالترتيب الصحيح، من الاستلام حتى المتابعة، ثم اضغط "تحقّق من الترتيب".</p>
-    </div>
-    <div class="activity-card">
-      <div class="order-pool" id="orderPool"></div>
-      <div class="order-answer" id="orderAnswer"></div>
-      <div class="order-controls">
-        <button class="primary-btn" id="checkOrder">تحقّق من الترتيب</button>
-        <button class="ghost-btn" id="resetOrder">إعادة تعيين</button>
+    <section class="panel" id="p-order-in">
+      <div class="section-head">
+        <span class="kicker">04 — نشاط تدريبي</span>
+        <h2>رتّب خطوات معالجة البريد الوارد</h2>
+        <p class="lede">اضغط على الخطوات أدناه بالترتيب الصحيح، من الاستلام حتى المتابعة، ثم اضغط "تحقّق من الترتيب".</p>
       </div>
-      <div class="result-msg" id="orderResult"></div>
-    </div>
-  </section>
+      <div class="activity-card">
+        <div class="order-pool" id="orderPoolIn"></div>
+        <div class="order-answer" id="orderAnswerIn"></div>
+        <div class="order-controls">
+          <button class="primary-btn" id="checkOrderIn">تحقّق من الترتيب</button>
+          <button class="ghost-btn" id="resetOrderIn">إعادة تعيين</button>
+        </div>
+        <div class="result-msg" id="orderResultIn"></div>
+      </div>
+    </section>
 
-  <!-- QUIZ -->
-  <section class="panel" id="p-quiz">
-    <div class="section-head">
-      <span class="kicker">05 — تقييم ذاتي</span>
-      <h2>اختبار قصير</h2>
-      <p class="lede">ست أسئلة سريعة للتأكد من استيعاب إجراءات البريد الوارد والنماذج المرتبطة بها.</p>
-    </div>
-    <div class="activity-card">
-      <div class="quiz-progress"><i id="quizBar"></i></div>
-      <div id="quizArea"></div>
-    </div>
-  </section>
+    <section class="panel" id="p-quiz-in">
+      <div class="section-head">
+        <span class="kicker">05 — تقييم ذاتي</span>
+        <h2>اختبار قصير</h2>
+        <p class="lede">ست أسئلة سريعة للتأكد من استيعاب إجراءات البريد الوارد والنماذج المرتبطة بها.</p>
+      </div>
+      <div class="activity-card">
+        <div class="quiz-progress"><i id="quizBarIn"></i></div>
+        <div id="quizAreaIn"></div>
+      </div>
+    </section>
 
-</main>
+  </main>
+</div>
+
+<!-- ================= OUTGOING MAIL ================= -->
+<div class="type-block" id="type-out">
+
+  <nav class="tabs">
+    <div class="tabs-inner">
+      <button class="tab-btn active" data-group="out" data-panel="p-rules-out">القواعد العامة</button>
+      <button class="tab-btn" data-group="out" data-panel="p-steps-out">خطوات المعالجة</button>
+      <button class="tab-btn" data-group="out" data-panel="p-forms-out">النماذج</button>
+      <button class="tab-btn" data-group="out" data-panel="p-order-out">نشاط: رتّب الخطوات</button>
+      <button class="tab-btn" data-group="out" data-panel="p-quiz-out">اختبار قصير</button>
+    </div>
+  </nav>
+
+  <main class="wrap">
+
+    <section class="panel active" id="p-rules-out">
+      <div class="section-head">
+        <span class="kicker">01 — قبل البدء</span>
+        <h2>الشروط الواجب توافرها في البريد الصادر</h2>
+        <p class="lede">أربعة شروط أساسية تحكم جودة المكاتبات الصادرة عن المنظمة، وتُراعى قبل الشروع في أي إجراء تفصيلي.</p>
+      </div>
+      <div class="rules-grid">
+        <div class="rule-card"><div class="rule-num">١</div><p>يجب أن تعطي المكاتبات الصادرة صورة طيبة عن المنظمة.</p></div>
+        <div class="rule-card"><div class="rule-num">٢</div><p>يجب أن تكون إجراءات البريد الصادر ميسّرة.</p></div>
+        <div class="rule-card"><div class="rule-num">٣</div><p>يجب ألا ينشأ عن المكاتبة التزامٌ أو تعهدٌ قانوني لا ترغب فيه المنظمة.</p></div>
+        <div class="rule-card"><div class="rule-num">٤</div><p>يجب مراعاة جوانب السرعة في إرسال الرسائل عن طريق وحدة البريد الصادر.</p></div>
+      </div>
+
+      <div class="definition-card">
+        <h3>ما المقصود بالبريد الصادر؟</h3>
+        <p>يُقصد بالبريد الصادر مجموعة المكاتبات التي تُنشئها المنظمة للاتصال بالأفراد والمنظمات الأخرى، وكذلك فروع المنظمة ذاتها. وتُعدّ الإجراءات السليمة في معالجة البريد الصادر من المتطلبات الهامة لنجاح العمل المكتبي، لأن الفشل في معالجته يُسيء إلى سمعة المنظمة لدى المتعاملين معها، كما أن التأخير في إرسال البريد الخارجي يُعطّل أعمال المنظمة ويُفقدها فرص تحقيق الأرباح أو يُعرّضها لخسائر وتكاليف غير ضرورية.</p>
+      </div>
+    </section>
+
+    <section class="panel" id="p-steps-out">
+      <div class="section-head">
+        <span class="kicker">02 — ثماني خطوات</span>
+        <h2>إجراءات معالجة البريد الصادر</h2>
+        <p class="lede">تابع الخطوات بالترتيب من اليمين، أو اضغط على أي خطوة مباشرة. بعض الخطوات مرتبطة بنموذج رسمي — اضغط الزر للانتقال إليه.</p>
+      </div>
+      <div class="stepper-shell">
+        <div class="step-rail" id="stepRailOut"></div>
+        <div>
+          <div class="step-card" id="stepCardOut"></div>
+          <div class="step-nav">
+            <button class="ghost-btn" id="prevStepOut">◀ السابقة</button>
+            <button class="ghost-btn" id="nextStepOut">التالية ▶</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="p-forms-out">
+      <div class="section-head">
+        <span class="kicker">03 — نماذج معتمدة</span>
+        <h2>النماذج المستخدمة في البريد الصادر</h2>
+        <p class="lede">نموذجان يرافقان خطوات المعالجة: طريقة كتابة العنوان على المظروف، وسجل البريد الصادر.</p>
+      </div>
+
+      <div class="forms-grid">
+        <div class="form-card" id="form-envelope">
+          <div class="fc-head"><h3>كتابة العنوان على المظروف</h3><span class="badge">شكل 42</span></div>
+          <div class="fc-body">
+            <p style="margin-bottom:14px; color:var(--ink-soft);">يُترك دائمًا مسافة مناسبة بين بداية كتابة العنوان وحواف المظروف، ويُكتب: اسم الشخص، ثم رقم المبنى أو عنوان الشارع، ثم صندوق البريد، ثم المدينة أو المنطقة، ثم الدولة.</p>
+            <div class="envelope">
+              <div class="env-inner">
+                <div class="env-stamp">مكان الطابع البريدي</div>
+                <div class="env-block env-sender">
+                  <span class="env-tag">عنوان المرسل</span><br>
+                  خالد صابر المحيسن<br>
+                  (١٢) شارع السبعين<br>
+                  ص.ب (٣٣٥٥)<br>
+                  جدة، المملكة العربية السعودية (٢١٤٥٦)
+                </div>
+                <div class="env-block env-receiver">
+                  <span class="env-tag">عنوان المرسل إليه</span><br>
+                  محمد إبراهيم السيد<br>
+                  (٢٥) شارع الستين<br>
+                  ص.ب (٣٣٥٥)<br>
+                  حائل، المملكة العربية السعودية (٢١٤٥٦)
+                </div>
+                <div class="env-airmail">FAR AVION<br>AIR MAIL<br>CORREO AÉREO</div>
+              </div>
+            </div>
+
+            <div class="fold-steps">
+              <div class="fold-step"><span class="letter">أ</span><p>ضع الرسالة على سطح مستوٍ ووجهها للأعلى، ثم اثنِ ما يقارب ثلث الصفحة السفلي إلى أعلى واضغط بخفة.</p></div>
+              <div class="fold-step"><span class="letter">ب</span><p>اثنِ الصفحة إلى أسفل بمقدار نصف بوصة تقريبًا من الثنية الأولى، ثم اضغط بخفة.</p></div>
+              <div class="fold-step"><span class="letter">ج</span><p>أدخل الرسالة في الظرف بحيث تكون الثنية الثانية باتجاه قاع الظرف.</p></div>
+            </div>
+
+            <p style="margin-top:18px; font-weight:700; color:var(--navy);">قبل الطي والإدخال في المظروف، يتأكد السكرتير من:</p>
+            <ul class="checklist">
+              <li>أن الرسالة موقّعة من صاحب الصلاحية.</li>
+              <li>صحة المرفقات الخاصة بالرسالة.</li>
+              <li>صحة وسلامة العنوان الذي ستتجه إليه الرسالة.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="form-card" id="form-outreg">
+          <div class="fc-head"><h3>سجل البريد الصادر</h3><span class="badge">شكل 43</span></div>
+          <div class="fc-body">
+            <p style="margin-bottom:14px; color:var(--ink-soft);">تُقيَّد فيه كل رسالة صادرة برقم مسلسل قبل تسليمها لمكتب البريد أو المراسلين.</p>
+            <div class="table-scroll">
+              <table class="reg-table">
+                <thead>
+                  <tr>
+                    <th>رقم الصادر</th><th>تاريخ التصدير</th><th>الجهة المرسَل إليها</th><th>المرفقات</th>
+                    <th>الموضوع</th><th>الإدارة المرسِلة</th><th>طريقة التصدير</th><th>ملاحظات</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>٨٦</td><td>٢٠٢٦/٠٣/٠٢</td><td>مكتب حائل الرئيسي</td><td>٣</td><td>تعميم إداري</td><td>الشؤون الإدارية</td><td>بريد سريع</td><td>—</td></tr>
+                  <tr><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="p-order-out">
+      <div class="section-head">
+        <span class="kicker">04 — نشاط تدريبي</span>
+        <h2>رتّب خطوات معالجة البريد الصادر</h2>
+        <p class="lede">اضغط على الخطوات أدناه بالترتيب الصحيح، من التجميع حتى التسليم، ثم اضغط "تحقّق من الترتيب".</p>
+      </div>
+      <div class="activity-card">
+        <div class="order-pool" id="orderPoolOut"></div>
+        <div class="order-answer" id="orderAnswerOut"></div>
+        <div class="order-controls">
+          <button class="primary-btn" id="checkOrderOut">تحقّق من الترتيب</button>
+          <button class="ghost-btn" id="resetOrderOut">إعادة تعيين</button>
+        </div>
+        <div class="result-msg" id="orderResultOut"></div>
+      </div>
+    </section>
+
+    <section class="panel" id="p-quiz-out">
+      <div class="section-head">
+        <span class="kicker">05 — تقييم ذاتي</span>
+        <h2>اختبار قصير</h2>
+        <p class="lede">ست أسئلة سريعة للتأكد من استيعاب إجراءات البريد الصادر والنماذج المرتبطة بها.</p>
+      </div>
+      <div class="activity-card">
+        <div class="quiz-progress"><i id="quizBarOut"></i></div>
+        <div id="quizAreaOut"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
 
 <footer class="note">
   <span class="ic">✎</span>
@@ -568,32 +772,180 @@
 (function(){
   "use strict";
 
-  // ---------- tabs ----------
+  // ---------- type switcher ----------
+  var typeBtns = document.querySelectorAll(".type-btn");
+  var typeBlocks = { "in": document.getElementById("type-in"), "out": document.getElementById("type-out") };
+  typeBtns.forEach(function(btn){
+    btn.addEventListener("click", function(){
+      typeBtns.forEach(function(b){ b.classList.remove("active"); });
+      btn.classList.add("active");
+      Object.keys(typeBlocks).forEach(function(k){ typeBlocks[k].classList.remove("active"); });
+      typeBlocks[btn.dataset.type].classList.add("active");
+      window.scrollTo({top:0, behavior:"smooth"});
+    });
+  });
+
+  // ---------- tabs (both groups share the same class names, scoped by data-group) ----------
   var tabBtns = document.querySelectorAll(".tab-btn");
   var panels = document.querySelectorAll(".panel");
   tabBtns.forEach(function(btn){
     btn.addEventListener("click", function(){
-      tabBtns.forEach(function(b){ b.classList.remove("active"); });
-      panels.forEach(function(p){ p.classList.remove("active"); });
+      var group = btn.dataset.group;
+      tabBtns.forEach(function(b){ if(b.dataset.group===group) b.classList.remove("active"); });
+      panels.forEach(function(p){ if(p.id.endsWith("-"+group)) p.classList.remove("active"); });
       btn.classList.add("active");
       document.getElementById(btn.dataset.panel).classList.add("active");
       window.scrollTo({top:0, behavior:"smooth"});
     });
   });
 
-  function goToForm(id){
-    tabBtns.forEach(function(b){ b.classList.remove("active"); });
-    panels.forEach(function(p){ p.classList.remove("active"); });
-    document.querySelector('[data-panel="p-forms"]').classList.add("active");
-    document.getElementById("p-forms").classList.add("active");
+  function goToForm(group, id){
+    tabBtns.forEach(function(b){ if(b.dataset.group===group) b.classList.remove("active"); });
+    panels.forEach(function(p){ if(p.id.endsWith("-"+group)) p.classList.remove("active"); });
+    document.querySelector('.tab-btn[data-group="'+group+'"][data-panel="p-forms-'+group+'"]').classList.add("active");
+    document.getElementById("p-forms-"+group).classList.add("active");
     setTimeout(function(){
       var el = document.getElementById(id);
       if(el){ el.scrollIntoView({behavior:"smooth", block:"start"}); }
     }, 60);
   }
 
-  // ---------- steps data ----------
-  var steps = [
+  // ============ shared engine for stepper / order / quiz ============
+  function buildStepper(steps, railId, cardId, prevId, nextId, group){
+    var curStep = 0;
+    var rail = document.getElementById(railId);
+    steps.forEach(function(s, i){
+      var b = document.createElement("button");
+      b.className = "step-dot-btn" + (i===0 ? " active" : "");
+      b.innerHTML = '<span class="dot">'+(i+1)+'</span><span class="label">'+s.t+'</span>';
+      b.addEventListener("click", function(){ showStep(i); });
+      rail.appendChild(b);
+    });
+    function showStep(i){
+      curStep = i;
+      rail.querySelectorAll(".step-dot-btn").forEach(function(b, idx){ b.classList.toggle("active", idx===i); });
+      var s = steps[i];
+      var card = document.getElementById(cardId);
+      var formBtn = s.form ? '<button class="form-link" data-form="'+s.form.id+'">↩ '+s.form.label+'</button>' : "";
+      card.innerHTML = '<span class="tag">الخطوة '+(i+1)+' من '+steps.length+'</span><h3>'+s.t+'</h3><p>'+s.d+'</p>'+formBtn;
+      var linkBtn = card.querySelector(".form-link");
+      if(linkBtn){ linkBtn.addEventListener("click", function(){ goToForm(group, this.dataset.form); }); }
+      document.getElementById(prevId).disabled = (i===0);
+      document.getElementById(nextId).disabled = (i===steps.length-1);
+    }
+    document.getElementById(prevId).addEventListener("click", function(){ if(curStep>0) showStep(curStep-1); });
+    document.getElementById(nextId).addEventListener("click", function(){ if(curStep<steps.length-1) showStep(curStep+1); });
+    showStep(0);
+  }
+
+  function buildOrderActivity(steps, poolId, answerId, checkId, resetId, resultId){
+    var orderItems = steps.map(function(s,i){ return {t:s.t, correct:i}; });
+    var shuffled = orderItems.slice().sort(function(){ return Math.random()-0.5; });
+    var chosen = [];
+    var pool = document.getElementById(poolId);
+    var answer = document.getElementById(answerId);
+
+    function renderPool(){
+      pool.innerHTML = "";
+      shuffled.forEach(function(item){
+        var chip = document.createElement("button");
+        chip.className = "order-chip" + (chosen.includes(item) ? " used" : "");
+        chip.textContent = item.t;
+        chip.disabled = chosen.includes(item);
+        chip.addEventListener("click", function(){ chosen.push(item); renderPool(); renderAnswer(); });
+        pool.appendChild(chip);
+      });
+    }
+    function renderAnswer(){
+      answer.innerHTML = "";
+      if(chosen.length===0){
+        answer.innerHTML = '<span style="color:var(--ink-soft); font-size:.9rem;">اضغط الخطوات أعلاه بالترتيب الصحيح — ستظهر هنا.</span>';
+        return;
+      }
+      chosen.forEach(function(item, idx){
+        var slot = document.createElement("div");
+        slot.className = "slot";
+        slot.innerHTML = '<span class="n">'+(idx+1)+'.</span> '+item.t;
+        answer.appendChild(slot);
+      });
+    }
+    renderPool(); renderAnswer();
+
+    document.getElementById(resetId).addEventListener("click", function(){
+      chosen = [];
+      shuffled = orderItems.slice().sort(function(){ return Math.random()-0.5; });
+      document.getElementById(resultId).textContent = "";
+      document.getElementById(resultId).className = "result-msg";
+      renderPool(); renderAnswer();
+    });
+    document.getElementById(checkId).addEventListener("click", function(){
+      var res = document.getElementById(resultId);
+      if(chosen.length !== orderItems.length){
+        res.textContent = "أكمل ترتيب جميع الخطوات الثماني أولًا.";
+        res.className = "result-msg bad";
+        return;
+      }
+      var correct = chosen.every(function(item, idx){ return item.correct === idx; });
+      if(correct){
+        res.textContent = "✓ ممتاز! الترتيب صحيح تمامًا.";
+        res.className = "result-msg good";
+      } else {
+        var count = chosen.filter(function(item, idx){ return item.correct === idx; }).length;
+        res.textContent = "الترتيب غير صحيح بالكامل — "+count+" من "+orderItems.length+" في موضعها الصحيح. أعد المحاولة.";
+        res.className = "result-msg bad";
+      }
+    });
+  }
+
+  function buildQuiz(questions, areaId, barId){
+    var qi = 0, score = 0, answered = false;
+    var quizArea = document.getElementById(areaId);
+    var quizBar = document.getElementById(barId);
+
+    function renderQuiz(){
+      if(qi >= questions.length){
+        quizArea.innerHTML = '<div class="quiz-score"><div class="big">'+score+' / '+questions.length+'</div><p style="margin-top:8px; color:var(--ink-soft);">نتيجتك في الاختبار القصير</p><button class="primary-btn" id="retry-'+areaId+'" style="margin-top:18px;">إعادة المحاولة</button></div>';
+        quizBar.style.width = "100%";
+        document.getElementById("retry-"+areaId).addEventListener("click", function(){
+          qi = 0; score = 0; answered = false; renderQuiz();
+        });
+        return;
+      }
+      quizBar.style.width = Math.round((qi/questions.length)*100)+"%";
+      answered = false;
+      var q = questions[qi];
+      var html = '<div class="quiz-q"><h4>السؤال '+(qi+1)+' من '+questions.length+' — '+q.q+'</h4><div class="quiz-opts">';
+      q.opts.forEach(function(opt, idx){
+        html += '<button class="quiz-opt" data-idx="'+idx+'">'+opt+'</button>';
+      });
+      html += '</div><div class="quiz-explain" id="explain-'+areaId+'">'+q.note+'</div>';
+      html += '<div class="quiz-nav"><span></span><button class="primary-btn" id="next-'+areaId+'" disabled>السؤال التالي ▶</button></div></div>';
+      quizArea.innerHTML = html;
+
+      quizArea.querySelectorAll(".quiz-opt").forEach(function(btn){
+        btn.addEventListener("click", function(){
+          if(answered) return;
+          answered = true;
+          var idx = parseInt(this.dataset.idx, 10);
+          quizArea.querySelectorAll(".quiz-opt").forEach(function(b){ b.disabled = true; });
+          if(idx === q.correct){
+            this.classList.add("correct");
+            score++;
+          } else {
+            this.classList.add("wrong");
+            quizArea.querySelector('.quiz-opt[data-idx="'+q.correct+'"]').classList.add("correct");
+          }
+          document.getElementById("explain-"+areaId).style.display = "block";
+          document.getElementById("next-"+areaId).disabled = false;
+        });
+      });
+      document.getElementById("next-"+areaId).addEventListener("click", function(){ qi++; renderQuiz(); });
+    }
+    renderQuiz();
+  }
+
+  // ============ INCOMING MAIL DATA ============
+  var stepsIn = [
     {t:"الاستلام والفرز", d:"استلام البريد الوارد — عبر المراسل، أو جهاز الفاكس، أو ناقل البريد — وفرزه، واستبعاد ما لا يخص المنشأة وإعادته إلى مصدره.", form:null},
     {t:"الفتح والفحص", d:"فتح المظاريف (فيما عدا الرسائل السرية أو الشخصية) والتأكد من مطابقة محتوياتها لما هو مذكور من مرفقات.", form:null},
     {t:"الاطلاع والتصنيف", d:"الاطلاع على موضوع كل رسالة وتاريخها، وتصنيفها حسب درجة أهميتها واستعجالها قبل المتابعة.", form:null},
@@ -603,97 +955,7 @@
     {t:"التوزيع", d:"توزيع البريد على الإدارات والأقسام المعنية وفق توجيهات المدير، مع تصوير الرسالة عند الحاجة إذا كانت موجّهة لأكثر من جهة.", form:null},
     {t:"المتابعة", d:"متابعة الرد على المعاملات المُحالة للتأكد من إنجازها في الوقت المناسب، باستخدام مذكرة متابعة تُرسل للإدارة المعنية.", form:{id:"form-followup", label:"عرض مذكرة المتابعة"}}
   ];
-  var curStep = 0;
-  var rail = document.getElementById("stepRail");
-  steps.forEach(function(s, i){
-    var b = document.createElement("button");
-    b.className = "step-dot-btn" + (i===0 ? " active" : "");
-    b.innerHTML = '<span class="dot">'+(i+1)+'</span><span class="label">'+s.t+'</span>';
-    b.addEventListener("click", function(){ showStep(i); });
-    rail.appendChild(b);
-  });
-
-  function showStep(i){
-    curStep = i;
-    document.querySelectorAll(".step-dot-btn").forEach(function(b, idx){
-      b.classList.toggle("active", idx===i);
-    });
-    var s = steps[i];
-    var card = document.getElementById("stepCard");
-    var formBtn = s.form ? '<button class="form-link" data-form="'+s.form.id+'">↩ '+s.form.label+'</button>' : "";
-    card.innerHTML = '<span class="tag">الخطوة '+(i+1)+' من '+steps.length+'</span><h3>'+s.t+'</h3><p>'+s.d+'</p>'+formBtn;
-    var linkBtn = card.querySelector(".form-link");
-    if(linkBtn){ linkBtn.addEventListener("click", function(){ goToForm(this.dataset.form); }); }
-    document.getElementById("prevStep").disabled = (i===0);
-    document.getElementById("nextStep").disabled = (i===steps.length-1);
-  }
-  document.getElementById("prevStep").addEventListener("click", function(){ if(curStep>0) showStep(curStep-1); });
-  document.getElementById("nextStep").addEventListener("click", function(){ if(curStep<steps.length-1) showStep(curStep+1); });
-  showStep(0);
-
-  // ---------- order activity ----------
-  var orderItems = steps.map(function(s,i){ return {t:s.t, correct:i}; });
-  var shuffled = orderItems.slice().sort(function(){ return Math.random()-0.5; });
-  var chosen = [];
-  var pool = document.getElementById("orderPool");
-  var answer = document.getElementById("orderAnswer");
-
-  function renderPool(){
-    pool.innerHTML = "";
-    shuffled.forEach(function(item){
-      var chip = document.createElement("button");
-      chip.className = "order-chip" + (chosen.includes(item) ? " used" : "");
-      chip.textContent = item.t;
-      chip.disabled = chosen.includes(item);
-      chip.addEventListener("click", function(){
-        chosen.push(item);
-        renderPool(); renderAnswer();
-      });
-      pool.appendChild(chip);
-    });
-  }
-  function renderAnswer(){
-    answer.innerHTML = "";
-    if(chosen.length===0){
-      answer.innerHTML = '<span style="color:var(--ink-soft); font-size:.9rem;">اضغط الخطوات أعلاه بالترتيب الصحيح — ستظهر هنا.</span>';
-      return;
-    }
-    chosen.forEach(function(item, idx){
-      var slot = document.createElement("div");
-      slot.className = "slot";
-      slot.innerHTML = '<span class="n">'+(idx+1)+'.</span> '+item.t;
-      answer.appendChild(slot);
-    });
-  }
-  renderPool(); renderAnswer();
-
-  document.getElementById("resetOrder").addEventListener("click", function(){
-    chosen = [];
-    shuffled = orderItems.slice().sort(function(){ return Math.random()-0.5; });
-    document.getElementById("orderResult").textContent = "";
-    document.getElementById("orderResult").className = "result-msg";
-    renderPool(); renderAnswer();
-  });
-  document.getElementById("checkOrder").addEventListener("click", function(){
-    var res = document.getElementById("orderResult");
-    if(chosen.length !== orderItems.length){
-      res.textContent = "أكمل ترتيب جميع الخطوات الثماني أولًا.";
-      res.className = "result-msg bad";
-      return;
-    }
-    var correct = chosen.every(function(item, idx){ return item.correct === idx; });
-    if(correct){
-      res.textContent = "✓ ممتاز! الترتيب صحيح تمامًا.";
-      res.className = "result-msg good";
-    } else {
-      var count = chosen.filter(function(item, idx){ return item.correct === idx; }).length;
-      res.textContent = "الترتيب غير صحيح بالكامل — "+count+" من "+orderItems.length+" في موضعها الصحيح. أعد المحاولة.";
-      res.className = "result-msg bad";
-    }
-  });
-
-  // ---------- quiz ----------
-  var questions = [
+  var questionsIn = [
     {q:"ما الغرض الأساسي من ختم البريد الوارد؟", opts:["توثيق تاريخ ووقت استلام الرسالة ورقمها","إرسال نسخة للجهة المرسِلة","إلغاء الحاجة إلى التسجيل في الدفتر","تحديد سعر الطابع البريدي"], correct:0, note:"الختم يوثّق بيانات الاستلام الأساسية فور وصول الرسالة (شكل 38)."},
     {q:"أي نموذج يستخدمه المدير لتدوين توجيهاته على المعاملة؟", opts:["دفتر البريد الوارد","بطاقة توجيه وشرح","مذكرة متابعة","خَتم البريد الوارد"], correct:1, note:"بطاقة التوجيه والشرح (شكل 39) هي الأداة التي يُحيل بها المدير المعاملة مع تعليماته."},
     {q:"ما الخطوة التي تسبق «التوزيع» مباشرة في إجراءات البريد الوارد؟", opts:["الفتح والفحص","الاستلام والفرز","العرض والتوجيه","الختم"], correct:2, note:"بعد عرض البريد على المسؤول وتدوين توجيهاته، يُوزَّع البريد وفق تلك التوجيهات."},
@@ -701,52 +963,35 @@
     {q:"متى تُرسَل مذكرة المتابعة؟", opts:["فور استلام أي رسالة", "عند تأخر ورود الرد على معاملة أُحيلت لإدارة معينة", "بدلًا من ختم البريد", "عند إرسال بريد صادر جديد فقط"], correct:1, note:"مذكرة المتابعة (شكل 41) تُذكّر الإدارة المعنية وتطلب إفادة بما اتُخذ بشأن المعاملة."},
     {q:"بحسب القواعد العامة، متى يُستخدم البريد السريع؟", opts:["في جميع المراسلات دون استثناء", "في الحالات المستعجلة التي تتطلب سرعة الوصول أو الرد", "فقط في المراسلات الشخصية", "عند تعطّل دفتر البريد الوارد"], correct:1, note:"القاعدة الثانية تنص على استخدام البريد السريع في الحالات المستعجلة تحديدًا."}
   ];
-  var qi = 0, score = 0, answered = false;
-  var quizArea = document.getElementById("quizArea");
-  var quizBar = document.getElementById("quizBar");
 
-  function renderQuiz(){
-    if(qi >= questions.length){
-      quizArea.innerHTML = '<div class="quiz-score"><div class="big">'+score+' / '+questions.length+'</div><p style="margin-top:8px; color:var(--ink-soft);">نتيجتك في الاختبار القصير</p><button class="primary-btn" id="retryQuiz" style="margin-top:18px;">إعادة المحاولة</button></div>';
-      quizBar.style.width = "100%";
-      document.getElementById("retryQuiz").addEventListener("click", function(){
-        qi = 0; score = 0; answered = false; renderQuiz();
-      });
-      return;
-    }
-    quizBar.style.width = Math.round((qi/questions.length)*100)+"%";
-    answered = false;
-    var q = questions[qi];
-    var html = '<div class="quiz-q"><h4>السؤال '+(qi+1)+' من '+questions.length+' — '+q.q+'</h4><div class="quiz-opts">';
-    q.opts.forEach(function(opt, idx){
-      html += '<button class="quiz-opt" data-idx="'+idx+'">'+opt+'</button>';
-    });
-    html += '</div><div class="quiz-explain" id="quizExplain">'+q.note+'</div>';
-    html += '<div class="quiz-nav"><span></span><button class="primary-btn" id="nextQ" disabled>السؤال التالي ▶</button></div></div>';
-    quizArea.innerHTML = html;
+  // ============ OUTGOING MAIL DATA ============
+  var stepsOut = [
+    {t:"التجميع", d:"تجميع البريد والمراسلات الصادرة من الإدارات المختلفة في أوقات معينة خلال النهار، عن طريق المراسلين الذين يمرّون على المكاتب لاستلام المراسلات الصادرة، أو عن طريق السيور المتحركة.", form:null},
+    {t:"المراجعة", d:"يقوم المسؤول في وحدة البريد الصادر بمراجعة الرسائل المستلمة؛ للتأكد من مطابقتها للمواصفات السليمة لكتابة الرسائل.", form:null},
+    {t:"الاحتفاظ بنسخة", d:"الاحتفاظ بنسخة (صورة) من الرسائل والمعاملات في وحدة البريد، قبل الشروع في إجراءات عملية التصدير.", form:null},
+    {t:"إعداد المظروف والعنوان", d:"إن لم تكن الإدارة المعنية قد أعدّت المظروف، يتولى العاملون في إدارة البريد الصادر إعداده وفق العنوان المبيّن على الرسالة، مع ترك مسافة مناسبة بين بداية العنوان وحواف المظروف.", form:{id:"form-envelope", label:"عرض نموذج كتابة العنوان"}},
+    {t:"الفرز", d:"فرز البريد الصادر تبعًا للجهات المرسَل إليها، مع التفرقة بين البريد الخارجي والمراسلات الموزَّعة بين إدارات المنظمة.", form:null},
+    {t:"القيد في السجل", d:"القيد في سجل البريد الصادر، وإعطاء كل رسالة رقمًا مسلسلًا في ذلك السجل.", form:{id:"form-outreg", label:"عرض سجل البريد الصادر"}},
+    {t:"الطي والإدخال في المظروف", d:"طي الخطابات بطريقة صحيحة حتى لا تتعرض الورقة للتلف من كثرة الثني، مع مراجعة السكرتير لتوقيع الرسالة ومرفقاتها وعنوانها قبل إدخالها في المظروف.", form:{id:"form-envelope", label:"عرض خطوات الطي"}},
+    {t:"التسليم", d:"يُسلِّم مندوب البريد المظاريف إلى مكتب البريد بموجب إيصالات استلام، أما البريد الداخلي فيُسلَّم عبر المراسلين مع توقيع المستلم في نماذج تسليم الرسائل البريدية.", form:null}
+  ];
+  var questionsOut = [
+    {q:"ما المقصود بالبريد الصادر؟", opts:["مجموعة المكاتبات التي تنشئها المنظمة للاتصال بالأفراد والمنظمات الأخرى وفروعها","المراسلات التي تصل إلى المنظمة من الخارج فقط","دفتر تسجيل الحضور والانصراف","نماذج طلب الإجازات"], correct:0, note:"البريد الصادر هو كل ما تُنشئه المنظمة من مكاتبات موجَّهة للخارج أو لفروعها."},
+    {q:"أي شرط من شروط البريد الصادر يتعلق بعدم إلزام المنظمة بما لا ترغب فيه؟", opts:["أن تعطي صورة طيبة عن المنظمة", "ألا ينشأ عن المكاتبة التزام أو تعهد قانوني لا ترغب فيه المنظمة", "أن تكون الإجراءات ميسّرة", "مراعاة جوانب السرعة"], correct:1, note:"الشرط الثالث يحمي المنظمة من التزامات قانونية غير مقصودة تنشأ عن صياغة المكاتبة."},
+    {q:"لماذا يحتفظ مسؤول البريد الصادر بنسخة من الرسالة قبل تصديرها؟", opts:["لإرسالها مع الأصل للجهة المستلمة", "لتكون مرجعًا للمنظمة بعد إرسال الأصل", "لأنها بديل عن القيد في السجل", "لا داعي للاحتفاظ بأي نسخة"], correct:1, note:"نسخة الرسالة تُحفظ في وحدة البريد كمرجع للمنظمة قبل إجراءات التصدير."},
+    {q:"في أي خطوة يُعطى البريد الصادر رقمًا مسلسلًا؟", opts:["التجميع", "الفرز", "القيد في سجل البريد الصادر", "التسليم"], correct:2, note:"عند القيد في سجل البريد الصادر (شكل 43) تُعطى كل رسالة رقمًا مسلسلًا في السجل."},
+    {q:"عند طي الرسالة وإدخالها في الظرف، أين يجب أن تتجه الثنية الثانية؟", opts:["باتجاه فتحة الظرف العلوية", "باتجاه قاع الظرف", "لا فرق في الاتجاه", "تُطوى الرسالة مرة واحدة فقط"], correct:1, note:"وفق خطوات الطي الصحيحة، تدخل الرسالة في الظرف بحيث تكون الثنية الثانية باتجاه قاع الظرف."},
+    {q:"كيف يُسلَّم عادةً البريد الداخلي الموجَّه إلى إدارات المنظمة؟", opts:["عبر مكتب البريد الخارجي فقط", "بواسطة المراسلين، مع توقيع المستلم في نماذج التسليم", "بالبريد الإلكتروني حصرًا", "لا حاجة لتوثيق التسليم"], correct:1, note:"البريد داخل المدينة أو بين إدارات المنظمة يُسلَّم عادة بواسطة المراسلين مع توقيع الاستلام."}
+  ];
 
-    document.querySelectorAll(".quiz-opt").forEach(function(btn){
-      btn.addEventListener("click", function(){
-        if(answered) return;
-        answered = true;
-        var idx = parseInt(this.dataset.idx, 10);
-        document.querySelectorAll(".quiz-opt").forEach(function(b){ b.disabled = true; });
-        if(idx === q.correct){
-          this.classList.add("correct");
-          score++;
-        } else {
-          this.classList.add("wrong");
-          document.querySelector('.quiz-opt[data-idx="'+q.correct+'"]').classList.add("correct");
-        }
-        document.getElementById("quizExplain").style.display = "block";
-        document.getElementById("nextQ").disabled = false;
-      });
-    });
-    document.getElementById("nextQ").addEventListener("click", function(){
-      qi++; renderQuiz();
-    });
-  }
-  renderQuiz();
+  // ---------- init all four engines ----------
+  buildStepper(stepsIn, "stepRailIn", "stepCardIn", "prevStepIn", "nextStepIn", "in");
+  buildOrderActivity(stepsIn, "orderPoolIn", "orderAnswerIn", "checkOrderIn", "resetOrderIn", "orderResultIn");
+  buildQuiz(questionsIn, "quizAreaIn", "quizBarIn");
+
+  buildStepper(stepsOut, "stepRailOut", "stepCardOut", "prevStepOut", "nextStepOut", "out");
+  buildOrderActivity(stepsOut, "orderPoolOut", "orderAnswerOut", "checkOrderOut", "resetOrderOut", "orderResultOut");
+  buildQuiz(questionsOut, "quizAreaOut", "quizBarOut");
 
 })();
 </script>
