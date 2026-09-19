@@ -1,0 +1,755 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<title>إجراءات البريد الوارد</title>
+<style>
+  :root{
+    --navy:#1B2A44;
+    --navy-2:#233657;
+    --teal:#128077;
+    --teal-2:#0E655E;
+    --teal-tint:#E4F3F1;
+    --gold:#B8863C;
+    --gold-tint:#F6EBD8;
+    --bg:#F7F5EF;
+    --surface:#FFFFFF;
+    --surface-2:#F1EFE7;
+    --ink:#20242B;
+    --ink-soft:#525B68;
+    --line:#E2DFD5;
+    --good:#1E8A5F;
+    --bad:#C24444;
+    --radius:16px;
+    --shadow:0 10px 30px -14px rgba(27,42,68,.28);
+    --font-display:"IBM Plex Sans Arabic","Tajawal","Segoe UI",sans-serif;
+    --font-body:"IBM Plex Sans Arabic","Tajawal","Segoe UI",sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --navy:#EDEFF4;
+      --navy-2:#C9D2E3;
+      --teal:#4FC3B8;
+      --teal-2:#7FD8CE;
+      --teal-tint:#0F2B29;
+      --gold:#E3B968;
+      --gold-tint:#2E2517;
+      --bg:#12151C;
+      --surface:#1B1F29;
+      --surface-2:#232836;
+      --ink:#EDEFF4;
+      --ink-soft:#A7AEBD;
+      --line:#323848;
+      --good:#57C98C;
+      --bad:#E27272;
+      --shadow:0 10px 30px -14px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="dark"]{
+      --navy:#EDEFF4;
+      --navy-2:#C9D2E3;
+      --teal:#4FC3B8;
+      --teal-2:#7FD8CE;
+      --teal-tint:#0F2B29;
+      --gold:#E3B968;
+      --gold-tint:#2E2517;
+      --bg:#12151C;
+      --surface:#1B1F29;
+      --surface-2:#232836;
+      --ink:#EDEFF4;
+      --ink-soft:#A7AEBD;
+      --line:#323848;
+      --good:#57C98C;
+      --bad:#E27272;
+      --shadow:0 10px 30px -14px rgba(0,0,0,.6);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{direction:rtl;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:19px;
+    line-height:1.85;
+    padding-inline:0;
+  }
+  h1,h2,h3,h4{font-family:var(--font-display); color:var(--navy); text-wrap:balance; margin:0;}
+  p{margin:0;}
+  .wrap{max-width:980px; margin-inline:auto; padding-inline:20px;}
+
+  /* header */
+  header.top{
+    background:linear-gradient(180deg, var(--navy) 0%, var(--navy-2) 100%);
+    color:#fff;
+    padding-block:28px 34px;
+    position:relative;
+    overflow:hidden;
+  }
+  header.top::after{
+    content:"";
+    position:absolute; inset:auto -10% -60% auto;
+    width:420px; height:420px; border-radius:50%;
+    background:radial-gradient(circle, rgba(79,195,184,.35), transparent 70%);
+    pointer-events:none;
+  }
+  .top-row{
+    display:flex; align-items:center; gap:18px; flex-wrap:wrap;
+    position:relative; z-index:1;
+  }
+  .logo-badge{
+    width:64px; height:64px; border-radius:14px; background:#fff;
+    display:flex; align-items:center; justify-content:center; flex:none;
+    box-shadow:var(--shadow);
+    padding:8px;
+  }
+  .logo-badge img{width:100%; height:100%; object-fit:contain;}
+  .org-text{font-size:.95rem; color:#DCE6EE; line-height:1.6;}
+  .org-text strong{display:block; font-size:1.08rem; color:#fff; font-weight:700;}
+  .top-title{margin-top:22px; position:relative; z-index:1;}
+  .top-title h1{color:#fff; font-size:clamp(1.7rem,4vw,2.5rem); font-weight:800;}
+  .top-title .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    color:var(--teal-2); font-weight:700; font-size:.95rem;
+    letter-spacing:.02em; margin-bottom:8px;
+  }
+  .breadcrumbs{
+    margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;
+    font-size:.9rem; color:#C7D2DE; position:relative; z-index:1;
+  }
+  .breadcrumbs span{
+    background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.16);
+    padding:5px 12px; border-radius:999px;
+  }
+
+  /* nav */
+  nav.tabs{
+    position:sticky; top:env(safe-area-inset-top,0px);
+    background:var(--bg);
+    border-bottom:1px solid var(--line);
+    z-index:20;
+  }
+  .tabs-inner{
+    max-width:980px; margin-inline:auto; padding-inline:20px;
+    display:flex; gap:6px; overflow-x:auto; scrollbar-width:none;
+    padding-block:10px;
+  }
+  .tabs-inner::-webkit-scrollbar{display:none;}
+  .tab-btn{
+    flex:none; border:1px solid var(--line); background:var(--surface);
+    color:var(--ink-soft); font-family:var(--font-body); font-size:.95rem;
+    font-weight:700; padding:9px 18px; border-radius:999px; cursor:pointer;
+    white-space:nowrap; transition:.15s;
+  }
+  .tab-btn:hover{border-color:var(--teal);}
+  .tab-btn.active{background:var(--teal); border-color:var(--teal); color:#fff;}
+
+  main{padding-block:38px 60px;}
+  section.panel{display:none;}
+  section.panel.active{display:block; animation:fade .35s ease;}
+  @keyframes fade{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;}}
+
+  .section-head{margin-bottom:22px;}
+  .section-head .kicker{
+    color:var(--teal); font-weight:800; font-size:.95rem; margin-bottom:6px; display:block;
+  }
+  .section-head h2{font-size:clamp(1.4rem,3vw,1.9rem);}
+  .section-head p.lede{color:var(--ink-soft); margin-top:10px; font-size:1.05rem; max-width:70ch;}
+
+  /* rule cards */
+  .rules-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-top:22px;}
+  @media (max-width:640px){.rules-grid{grid-template-columns:1fr;}}
+  .rule-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+    padding:20px; display:flex; gap:14px; align-items:flex-start; box-shadow:var(--shadow);
+  }
+  .rule-num{
+    flex:none; width:42px; height:42px; border-radius:12px;
+    background:var(--teal-tint); color:var(--teal); font-weight:800; font-size:1.1rem;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .rule-card p{color:var(--ink); font-size:1.02rem;}
+
+  .definition-card{
+    margin-top:26px; background:var(--teal-tint); border:1px solid var(--teal);
+    border-radius:var(--radius); padding:22px 24px; position:relative;
+  }
+  .definition-card h3{color:var(--teal-2); font-size:1.15rem; margin-bottom:8px;}
+  .definition-card p{font-size:1.05rem;}
+
+  /* stepper */
+  .stepper-shell{
+    display:grid; grid-template-columns:230px 1fr; gap:26px; margin-top:26px; align-items:start;
+  }
+  @media (max-width:760px){.stepper-shell{grid-template-columns:1fr;}}
+  .step-rail{
+    display:flex; flex-direction:column; gap:6px;
+    border-inline-start:2px solid var(--line); padding-inline-start:18px;
+  }
+  @media (max-width:760px){
+    .step-rail{
+      flex-direction:row; overflow-x:auto; border-inline-start:none; border-bottom:2px solid var(--line);
+      padding-inline-start:0; padding-bottom:12px; gap:8px;
+    }
+  }
+  .step-dot-btn{
+    display:flex; align-items:center; gap:10px; background:none; border:none; cursor:pointer;
+    font-family:var(--font-body); text-align:right; padding:9px 10px; border-radius:10px; color:var(--ink-soft);
+    font-size:.98rem; font-weight:600;
+  }
+  .step-dot-btn:hover{background:var(--surface-2);}
+  .step-dot-btn .dot{
+    flex:none; width:28px; height:28px; border-radius:50%; background:var(--surface-2);
+    border:2px solid var(--line); display:flex; align-items:center; justify-content:center;
+    font-size:.85rem; font-weight:800; color:var(--ink-soft);
+  }
+  .step-dot-btn.active{color:var(--navy);}
+  .step-dot-btn.active .dot{background:var(--teal); border-color:var(--teal); color:#fff;}
+  @media (max-width:760px){.step-dot-btn span.label{display:none;}}
+
+  .step-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+    padding:26px 28px; box-shadow:var(--shadow); min-height:220px;
+  }
+  .step-card .tag{
+    display:inline-block; background:var(--gold-tint); color:var(--gold); font-weight:800;
+    font-size:.85rem; padding:4px 12px; border-radius:999px; margin-bottom:12px;
+  }
+  .step-card h3{font-size:1.35rem; margin-bottom:12px;}
+  .step-card p{font-size:1.08rem; color:var(--ink);}
+  .step-card .form-link{
+    margin-top:18px; display:inline-flex; align-items:center; gap:8px;
+    background:var(--teal); color:#fff; border:none; font-family:var(--font-body);
+    font-weight:700; font-size:.95rem; padding:10px 18px; border-radius:10px; cursor:pointer;
+  }
+  .step-card .form-link:hover{background:var(--teal-2);}
+  .step-nav{display:flex; justify-content:space-between; margin-top:18px; gap:10px;}
+  .ghost-btn{
+    background:var(--surface); border:1px solid var(--line); color:var(--navy);
+    font-family:var(--font-body); font-weight:700; padding:10px 20px; border-radius:10px;
+    cursor:pointer; font-size:.95rem;
+  }
+  .ghost-btn:hover{border-color:var(--teal);}
+  .ghost-btn:disabled{opacity:.4; cursor:not-allowed;}
+
+  /* forms */
+  .forms-grid{display:grid; grid-template-columns:1fr; gap:22px; margin-top:24px;}
+  .form-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+    box-shadow:var(--shadow); overflow:hidden; scroll-margin-top:90px;
+  }
+  .form-card .fc-head{
+    background:var(--navy); color:#fff; padding:16px 22px; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+  }
+  .form-card .fc-head h3{color:#fff; font-size:1.15rem;}
+  .form-card .fc-head span.badge{
+    background:rgba(255,255,255,.15); font-size:.85rem; padding:4px 12px; border-radius:999px; font-weight:700;
+  }
+  .form-card .fc-body{padding:22px;}
+  .stamp-box{
+    border:3px solid var(--navy); border-radius:10px; overflow:hidden; max-width:520px; font-size:1rem;
+  }
+  .stamp-row{display:flex; border-bottom:2px solid var(--navy);}
+  .stamp-row:last-child{border-bottom:none;}
+  .stamp-cell{flex:1; padding:12px 14px; border-inline-start:2px solid var(--navy); font-weight:700;}
+  .stamp-cell:first-child{border-inline-start:none;}
+  .stamp-cell small{display:block; font-weight:400; color:var(--ink-soft); margin-top:4px;}
+
+  .card-form-fields{display:grid; grid-template-columns:1fr 1fr; gap:10px 20px; font-size:1rem;}
+  @media (max-width:560px){.card-form-fields{grid-template-columns:1fr;}}
+  .field-line{border-bottom:1px dashed var(--line); padding-block:8px; display:flex; justify-content:space-between; gap:10px;}
+  .field-line b{color:var(--navy); white-space:nowrap;}
+  .field-line .fill{flex:1; border-bottom:1px dotted var(--ink-soft); margin-inline-start:8px;}
+  .checkbox-cols{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:16px;}
+  @media (max-width:560px){.checkbox-cols{grid-template-columns:1fr;}}
+  .cb-item{display:flex; align-items:center; gap:8px; padding:6px 0; font-size:.98rem;}
+  .cb-box{width:18px; height:18px; border:2px solid var(--navy); border-radius:4px; flex:none; display:flex; align-items:center; justify-content:center; font-size:.75rem; color:var(--teal); font-weight:900;}
+
+  table.reg-table{width:100%; border-collapse:collapse; font-size:.92rem; min-width:760px;}
+  table.reg-table th, table.reg-table td{border:1px solid var(--line); padding:10px 8px; text-align:center;}
+  table.reg-table th{background:var(--surface-2); color:var(--navy); font-weight:800;}
+  .table-scroll{overflow-x:auto; border-radius:10px;}
+
+  .memo-box{border:1px solid var(--line); border-radius:12px; padding:20px; background:var(--surface-2); font-size:1rem;}
+  .memo-box .memo-line{border-bottom:1px dotted var(--ink-soft); padding-block:8px;}
+
+  /* activities */
+  .activity-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+    padding:24px; box-shadow:var(--shadow); margin-top:24px;
+  }
+  .order-pool{display:flex; flex-wrap:wrap; gap:10px; margin-top:18px;}
+  .order-chip{
+    background:var(--surface-2); border:1px solid var(--line); color:var(--ink);
+    font-family:var(--font-body); font-weight:700; padding:10px 16px; border-radius:10px;
+    cursor:pointer; font-size:.95rem;
+  }
+  .order-chip:hover{border-color:var(--teal);}
+  .order-chip.used{opacity:.35; cursor:not-allowed;}
+  .order-answer{
+    display:flex; flex-direction:column; gap:8px; margin-top:20px; min-height:60px;
+    border:2px dashed var(--line); border-radius:12px; padding:14px;
+  }
+  .order-answer .slot{
+    display:flex; align-items:center; gap:10px; background:var(--teal-tint); border-radius:8px;
+    padding:9px 14px; font-size:.95rem; font-weight:700; color:var(--navy);
+  }
+  .order-answer .slot .n{color:var(--teal); font-weight:900;}
+  .order-controls{display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;}
+  .primary-btn{
+    background:var(--teal); color:#fff; border:none; font-family:var(--font-body); font-weight:800;
+    padding:11px 22px; border-radius:10px; cursor:pointer; font-size:.98rem;
+  }
+  .primary-btn:hover{background:var(--teal-2);}
+  .result-msg{margin-top:14px; font-weight:800; font-size:1rem;}
+  .result-msg.good{color:var(--good);}
+  .result-msg.bad{color:var(--bad);}
+
+  /* quiz */
+  .quiz-progress{
+    height:8px; background:var(--surface-2); border-radius:999px; overflow:hidden; margin-top:18px;
+  }
+  .quiz-progress > i{display:block; height:100%; background:var(--teal); width:0%; transition:.3s;}
+  .quiz-q{margin-top:22px;}
+  .quiz-q h4{font-size:1.15rem; color:var(--navy); margin-bottom:14px;}
+  .quiz-opts{display:flex; flex-direction:column; gap:10px;}
+  .quiz-opt{
+    text-align:right; background:var(--surface-2); border:2px solid transparent; border-radius:10px;
+    padding:12px 16px; cursor:pointer; font-family:var(--font-body); font-size:1rem; color:var(--ink);
+  }
+  .quiz-opt:hover{border-color:var(--teal);}
+  .quiz-opt.correct{border-color:var(--good); background:color-mix(in srgb, var(--good) 15%, var(--surface));}
+  .quiz-opt.wrong{border-color:var(--bad); background:color-mix(in srgb, var(--bad) 15%, var(--surface));}
+  .quiz-opt:disabled{cursor:default;}
+  .quiz-explain{margin-top:12px; font-size:.95rem; color:var(--ink-soft); background:var(--surface-2); padding:12px 14px; border-radius:10px; display:none;}
+  .quiz-nav{display:flex; justify-content:space-between; margin-top:20px;}
+  .quiz-score{text-align:center; padding:30px 10px;}
+  .quiz-score .big{font-size:3rem; font-weight:900; color:var(--teal);}
+
+  footer.note{
+    max-width:980px; margin:0 auto; padding:20px 20px 50px; font-size:.85rem; color:var(--ink-soft);
+    display:flex; gap:10px; align-items:flex-start;
+  }
+  footer.note .ic{flex:none; font-size:1.1rem;}
+  .print-hint{display:none;}
+</style>
+</head>
+<body>
+
+
+<header class="top">
+  <div class="wrap">
+    <div class="top-row">
+      <div class="logo-badge"><img src="data:image/jpeg;base64,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" alt="شعار الجهة"></div>
+      <div class="org-text">
+        <strong>الكلية التقنية بأبو عريش</strong>
+        قسم الإدارة المكتبية · مقرر الاتصالات الإدارية
+      </div>
+    </div>
+    <div class="top-title">
+      <span class="eyebrow">◆ مادة تدريبية تفاعلية</span>
+      <h1>إجراءات البريد الوارد</h1>
+    </div>
+    <div class="breadcrumbs">
+      <span>القواعد العامة</span>
+      <span>خطوات المعالجة (8)</span>
+      <span>النماذج الرسمية</span>
+      <span>نشاط ترتيب</span>
+      <span>اختبار قصير</span>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="tabs-inner" id="tabsInner">
+    <button class="tab-btn active" data-panel="p-rules">القواعد العامة</button>
+    <button class="tab-btn" data-panel="p-steps">خطوات المعالجة</button>
+    <button class="tab-btn" data-panel="p-forms">النماذج</button>
+    <button class="tab-btn" data-panel="p-order">نشاط: رتّب الخطوات</button>
+    <button class="tab-btn" data-panel="p-quiz">اختبار قصير</button>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <!-- RULES -->
+  <section class="panel active" id="p-rules">
+    <div class="section-head">
+      <span class="kicker">01 — قبل البدء</span>
+      <h2>القواعد العامة في تنظيم أعمال البريد</h2>
+      <p class="lede">مجموعة القواعد الأساسية التي تحكم سير العمل في وحدة البريد بالمنشأة، وتُراعى قبل الشروع في أي إجراء تفصيلي.</p>
+    </div>
+    <div class="rules-grid">
+      <div class="rule-card"><div class="rule-num">١</div><p>ضبط سير الحركة في البريد الوارد والصادر، وتجنّب الخطوات غير الضرورية التي تُبطئ الإنجاز.</p></div>
+      <div class="rule-card"><div class="rule-num">٢</div><p>استخدام البريد السريع في الحالات المستعجلة التي تتطلب سرعة الوصول أو الرد.</p></div>
+      <div class="rule-card"><div class="rule-num">٣</div><p>الدقة والوضوح في تدوين جميع البيانات البريدية؛ فالخطأ في بيان واحد قد يُعطّل المعاملة كاملة.</p></div>
+      <div class="rule-card"><div class="rule-num">٤</div><p>توحيد جهة (وحدة) واحدة لاستقبال البريد وتسجيله داخل المنشأة لضمان التتبع والمساءلة.</p></div>
+    </div>
+
+    <div class="definition-card">
+      <h3>ما المقصود بالبريد الوارد؟</h3>
+      <p>يُقصد بالبريد الوارد جميع المراسلات التي تصل إلى المنشأة عبر وسائل الاتصال المختلفة — البريد العادي أو الممتاز، والفاكس، والبريد الإلكتروني، وما يُسلَّم باليد. ولإنجاز معالجته بالكفاءة المطلوبة، لا بد من اتّباع مجموعة إجراءات منظَّمة منذ لحظة استلامه وحتى إحالته للجهة المختصة ومتابعة الرد عليه.</p>
+    </div>
+  </section>
+
+  <!-- STEPS -->
+  <section class="panel" id="p-steps">
+    <div class="section-head">
+      <span class="kicker">02 — ثماني خطوات</span>
+      <h2>إجراءات معالجة البريد الوارد</h2>
+      <p class="lede">تابع الخطوات بالترتيب من اليمين، أو اضغط على أي خطوة مباشرة. بعض الخطوات مرتبطة بنموذج رسمي — اضغط الزر للانتقال إليه.</p>
+    </div>
+
+    <div class="stepper-shell">
+      <div class="step-rail" id="stepRail"></div>
+      <div>
+        <div class="step-card" id="stepCard"></div>
+        <div class="step-nav">
+          <button class="ghost-btn" id="prevStep">◀ السابقة</button>
+          <button class="ghost-btn" id="nextStep">التالية ▶</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FORMS -->
+  <section class="panel" id="p-forms">
+    <div class="section-head">
+      <span class="kicker">03 — نماذج معتمدة</span>
+      <h2>النماذج المستخدمة في البريد الوارد</h2>
+      <p class="lede">أربعة نماذج ترافق خطوات المعالجة: الختم، بطاقة التوجيه، دفتر التسجيل، ومذكرة المتابعة.</p>
+    </div>
+
+    <div class="forms-grid">
+      <div class="form-card" id="form-stamp">
+        <div class="fc-head"><h3>خَتم البريد الوارد</h3><span class="badge">شكل 38</span></div>
+        <div class="fc-body">
+          <p style="margin-bottom:14px; color:var(--ink-soft);">يُطبع هذا الختم على أول صفحة من كل رسالة واردة فور استلامها، لتوثيق بياناتها الأساسية.</p>
+          <div class="stamp-box">
+            <div class="stamp-row">
+              <div class="stamp-cell">إلى: <small>اسم الجهة الموجّهة إليها الرسالة</small></div>
+            </div>
+            <div class="stamp-row">
+              <div class="stamp-cell">رقم الوارد</div>
+              <div class="stamp-cell">المرفقات</div>
+            </div>
+            <div class="stamp-row">
+              <div class="stamp-cell">تاريخ الورود</div>
+              <div class="stamp-cell">رقم وتاريخ الرد</div>
+            </div>
+            <div class="stamp-row">
+              <div class="stamp-cell">الوقت</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card" id="form-guidance">
+        <div class="fc-head"><h3>بطاقة توجيه وشرح</h3><span class="badge">شكل 39</span></div>
+        <div class="fc-body">
+          <p style="margin-bottom:14px; color:var(--ink-soft);">يستخدمها المدير أو المسؤول لتوجيه المعاملة إلى الإدارة المختصة مع إضافة شرح أو تعليمات.</p>
+          <div class="card-form-fields">
+            <div class="field-line"><b>وزارة</b><span class="fill"></span></div>
+            <div class="field-line"><b>رقم المعاملة</b><span class="fill"></span></div>
+            <div class="field-line"><b>واردة من</b><span class="fill"></span></div>
+            <div class="field-line"><b>تاريخها</b><span class="fill"></span></div>
+            <div class="field-line"><b>تاريخ الورود</b><span class="fill"></span></div>
+            <div class="field-line"><b>إلى</b><span class="fill"></span></div>
+          </div>
+          <div class="field-line" style="margin-top:6px;"><b>الموضوع</b><span class="fill"></span></div>
+          <div class="field-line"><b>مع التحية إلى</b><span class="fill"></span></div>
+
+          <div class="checkbox-cols">
+            <div>
+              <div class="cb-item"><span class="cb-box">✓</span> الإدارة المالية</div>
+              <div class="cb-item"><span class="cb-box"></span> إدارة التخطيط</div>
+              <div class="cb-item"><span class="cb-box"></span> المستشار القانوني</div>
+            </div>
+            <div>
+              <div class="cb-item"><span class="cb-box"></span> الإدارة الهندسية</div>
+              <div class="cb-item"><span class="cb-box">✓</span> المرافق المالي</div>
+              <div class="cb-item"><span class="cb-box"></span> إدارة البحوث</div>
+            </div>
+          </div>
+          <div style="margin-top:16px;">
+            <b style="color:var(--navy);">الشرح:</b>
+            <div style="border-bottom:1px dotted var(--ink-soft); height:16px; margin-top:10px;"></div>
+            <div style="border-bottom:1px dotted var(--ink-soft); height:16px; margin-top:10px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card" id="form-register">
+        <div class="fc-head"><h3>دفتر البريد الوارد</h3><span class="badge">شكل 40</span></div>
+        <div class="fc-body">
+          <p style="margin-bottom:14px; color:var(--ink-soft);">سجل يومي تُقيَّد فيه كل رسالة واردة فور ختمها، ليكون مرجعًا رسميًا لحركة البريد.</p>
+          <div class="table-scroll">
+            <table class="reg-table">
+              <thead>
+                <tr>
+                  <th>رقم الوارد</th><th>التاريخ</th><th>الجهة المرسِلة</th><th>الموضوع</th><th>المرفقات</th>
+                  <th>رقم وتاريخ المكاتبة لدى المرسِل</th><th>الجهة المرسَل إليها</th><th>الجهة المختصة</th><th>التوقيع</th><th>تاريخ المتابعة</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>١٢٤</td><td>٢٠٢٦/٠٣/٠١</td><td>وزارة الموارد البشرية</td><td>طلب إفادة</td><td>٢</td><td>—</td><td>الإدارة العامة</td><td>الشؤون الإدارية</td><td>—</td><td>٢٠٢٦/٠٣/٠٥</td></tr>
+                <tr><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card" id="form-followup">
+        <div class="fc-head"><h3>مذكرة متابعة</h3><span class="badge">شكل 41</span></div>
+        <div class="fc-body">
+          <p style="margin-bottom:14px; color:var(--ink-soft);">تُرسَل إلى الإدارة التي أُحيلت إليها المعاملة عند تأخر ردّها، لتذكيرها وطلب الإفادة بما تم اتخاذه.</p>
+          <div class="memo-box">
+            <div class="memo-line"><b>من مدير مكتب:</b> ..........</div>
+            <div class="memo-line"><b>إلى:</b> ..........</div>
+            <p style="margin-top:12px;">السلام عليكم ورحمة الله وبركاته، وبعد:</p>
+            <p style="margin-top:6px;">تجدون أدناه بيانًا بالمعاملات التي تم تسليمها لإدارتكم:</p>
+            <div class="table-scroll" style="margin-top:12px;">
+              <table class="reg-table" style="min-width:600px;">
+                <thead><tr><th>رقم الوارد</th><th>تاريخ ورودها</th><th>الجهة المرسِلة</th><th>موضوع المعاملة</th><th>مستلم المعاملة</th><th>تاريخ المتابعة</th></tr></thead>
+                <tbody><tr><td></td><td></td><td></td><td></td><td></td><td></td></tr></tbody>
+              </table>
+            </div>
+            <p style="margin-top:14px;">وحيث إنه حتى تاريخه لم يردنا ما يفيد بما تم اتخاذه بشأنها، نرجو التكرم بالرد على ذلك.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ORDER ACTIVITY -->
+  <section class="panel" id="p-order">
+    <div class="section-head">
+      <span class="kicker">04 — نشاط تدريبي</span>
+      <h2>رتّب خطوات معالجة البريد الوارد</h2>
+      <p class="lede">اضغط على الخطوات أدناه بالترتيب الصحيح، من الاستلام حتى المتابعة، ثم اضغط "تحقّق من الترتيب".</p>
+    </div>
+    <div class="activity-card">
+      <div class="order-pool" id="orderPool"></div>
+      <div class="order-answer" id="orderAnswer"></div>
+      <div class="order-controls">
+        <button class="primary-btn" id="checkOrder">تحقّق من الترتيب</button>
+        <button class="ghost-btn" id="resetOrder">إعادة تعيين</button>
+      </div>
+      <div class="result-msg" id="orderResult"></div>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section class="panel" id="p-quiz">
+    <div class="section-head">
+      <span class="kicker">05 — تقييم ذاتي</span>
+      <h2>اختبار قصير</h2>
+      <p class="lede">ست أسئلة سريعة للتأكد من استيعاب إجراءات البريد الوارد والنماذج المرتبطة بها.</p>
+    </div>
+    <div class="activity-card">
+      <div class="quiz-progress"><i id="quizBar"></i></div>
+      <div id="quizArea"></div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="note">
+  <span class="ic">ⓘ</span>
+  <span>أُعدّت نصوص الشرح في هذه الصفحة بصياغة تعليمية قياسية اعتمادًا على العناوين والأرقام والنماذج الرسمية الواضحة في الملف المصدر، نظرًا لتراكب نصوص الفقرات التفصيلية في ملف العرض الأصلي. يُرجى مراجعتها والتأكد من مطابقتها للمقرر قبل اعتمادها النهائي في التدريب.</span>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- tabs ----------
+  var tabBtns = document.querySelectorAll(".tab-btn");
+  var panels = document.querySelectorAll(".panel");
+  tabBtns.forEach(function(btn){
+    btn.addEventListener("click", function(){
+      tabBtns.forEach(function(b){ b.classList.remove("active"); });
+      panels.forEach(function(p){ p.classList.remove("active"); });
+      btn.classList.add("active");
+      document.getElementById(btn.dataset.panel).classList.add("active");
+      window.scrollTo({top:0, behavior:"smooth"});
+    });
+  });
+
+  function goToForm(id){
+    tabBtns.forEach(function(b){ b.classList.remove("active"); });
+    panels.forEach(function(p){ p.classList.remove("active"); });
+    document.querySelector('[data-panel="p-forms"]').classList.add("active");
+    document.getElementById("p-forms").classList.add("active");
+    setTimeout(function(){
+      var el = document.getElementById(id);
+      if(el){ el.scrollIntoView({behavior:"smooth", block:"start"}); }
+    }, 60);
+  }
+
+  // ---------- steps data ----------
+  var steps = [
+    {t:"الاستلام والفرز", d:"استلام البريد الوارد — عبر المراسل، أو جهاز الفاكس، أو ناقل البريد — وفرزه، واستبعاد ما لا يخص المنشأة وإعادته إلى مصدره.", form:null},
+    {t:"الفتح والفحص", d:"فتح المظاريف (فيما عدا الرسائل السرية أو الشخصية) والتأكد من مطابقة محتوياتها لما هو مذكور من مرفقات.", form:null},
+    {t:"الاطلاع والتصنيف", d:"الاطلاع على موضوع كل رسالة وتاريخها، وتصنيفها حسب درجة أهميتها واستعجالها قبل المتابعة.", form:null},
+    {t:"الختم", d:"ختم كل رسالة واردة بخاتم البريد الوارد الذي يوضح تاريخ ووقت الورود ورقم الوارد، ليكون مرجعًا رسميًا عند الحاجة.", form:{id:"form-stamp", label:"عرض نموذج الختم"}},
+    {t:"التسجيل", d:"قيد بيانات الرسالة في دفتر (سجل) البريد الوارد: الرقم، والتاريخ، والجهة المرسِلة، والموضوع، والمرفقات.", form:{id:"form-register", label:"عرض دفتر البريد الوارد"}},
+    {t:"العرض والتوجيه", d:"عرض البريد على المدير أو المسؤول المختص للاطلاع عليه، وتدوين توجيهاته باستخدام بطاقة الشرح والتوجيه.", form:{id:"form-guidance", label:"عرض بطاقة التوجيه والشرح"}},
+    {t:"التوزيع", d:"توزيع البريد على الإدارات والأقسام المعنية وفق توجيهات المدير، مع تصوير الرسالة عند الحاجة إذا كانت موجّهة لأكثر من جهة.", form:null},
+    {t:"المتابعة", d:"متابعة الرد على المعاملات المُحالة للتأكد من إنجازها في الوقت المناسب، باستخدام مذكرة متابعة تُرسل للإدارة المعنية.", form:{id:"form-followup", label:"عرض مذكرة المتابعة"}}
+  ];
+  var curStep = 0;
+  var rail = document.getElementById("stepRail");
+  steps.forEach(function(s, i){
+    var b = document.createElement("button");
+    b.className = "step-dot-btn" + (i===0 ? " active" : "");
+    b.innerHTML = '<span class="dot">'+(i+1)+'</span><span class="label">'+s.t+'</span>';
+    b.addEventListener("click", function(){ showStep(i); });
+    rail.appendChild(b);
+  });
+
+  function showStep(i){
+    curStep = i;
+    document.querySelectorAll(".step-dot-btn").forEach(function(b, idx){
+      b.classList.toggle("active", idx===i);
+    });
+    var s = steps[i];
+    var card = document.getElementById("stepCard");
+    var formBtn = s.form ? '<button class="form-link" data-form="'+s.form.id+'">↩ '+s.form.label+'</button>' : "";
+    card.innerHTML = '<span class="tag">الخطوة '+(i+1)+' من '+steps.length+'</span><h3>'+s.t+'</h3><p>'+s.d+'</p>'+formBtn;
+    var linkBtn = card.querySelector(".form-link");
+    if(linkBtn){ linkBtn.addEventListener("click", function(){ goToForm(this.dataset.form); }); }
+    document.getElementById("prevStep").disabled = (i===0);
+    document.getElementById("nextStep").disabled = (i===steps.length-1);
+  }
+  document.getElementById("prevStep").addEventListener("click", function(){ if(curStep>0) showStep(curStep-1); });
+  document.getElementById("nextStep").addEventListener("click", function(){ if(curStep<steps.length-1) showStep(curStep+1); });
+  showStep(0);
+
+  // ---------- order activity ----------
+  var orderItems = steps.map(function(s,i){ return {t:s.t, correct:i}; });
+  var shuffled = orderItems.slice().sort(function(){ return Math.random()-0.5; });
+  var chosen = [];
+  var pool = document.getElementById("orderPool");
+  var answer = document.getElementById("orderAnswer");
+
+  function renderPool(){
+    pool.innerHTML = "";
+    shuffled.forEach(function(item){
+      var chip = document.createElement("button");
+      chip.className = "order-chip" + (chosen.includes(item) ? " used" : "");
+      chip.textContent = item.t;
+      chip.disabled = chosen.includes(item);
+      chip.addEventListener("click", function(){
+        chosen.push(item);
+        renderPool(); renderAnswer();
+      });
+      pool.appendChild(chip);
+    });
+  }
+  function renderAnswer(){
+    answer.innerHTML = "";
+    if(chosen.length===0){
+      answer.innerHTML = '<span style="color:var(--ink-soft); font-size:.9rem;">اضغط الخطوات أعلاه بالترتيب الصحيح — ستظهر هنا.</span>';
+      return;
+    }
+    chosen.forEach(function(item, idx){
+      var slot = document.createElement("div");
+      slot.className = "slot";
+      slot.innerHTML = '<span class="n">'+(idx+1)+'.</span> '+item.t;
+      answer.appendChild(slot);
+    });
+  }
+  renderPool(); renderAnswer();
+
+  document.getElementById("resetOrder").addEventListener("click", function(){
+    chosen = [];
+    shuffled = orderItems.slice().sort(function(){ return Math.random()-0.5; });
+    document.getElementById("orderResult").textContent = "";
+    document.getElementById("orderResult").className = "result-msg";
+    renderPool(); renderAnswer();
+  });
+  document.getElementById("checkOrder").addEventListener("click", function(){
+    var res = document.getElementById("orderResult");
+    if(chosen.length !== orderItems.length){
+      res.textContent = "أكمل ترتيب جميع الخطوات الثماني أولًا.";
+      res.className = "result-msg bad";
+      return;
+    }
+    var correct = chosen.every(function(item, idx){ return item.correct === idx; });
+    if(correct){
+      res.textContent = "✓ ممتاز! الترتيب صحيح تمامًا.";
+      res.className = "result-msg good";
+    } else {
+      var count = chosen.filter(function(item, idx){ return item.correct === idx; }).length;
+      res.textContent = "الترتيب غير صحيح بالكامل — "+count+" من "+orderItems.length+" في موضعها الصحيح. أعد المحاولة.";
+      res.className = "result-msg bad";
+    }
+  });
+
+  // ---------- quiz ----------
+  var questions = [
+    {q:"ما الغرض الأساسي من ختم البريد الوارد؟", opts:["توثيق تاريخ ووقت استلام الرسالة ورقمها","إرسال نسخة للجهة المرسِلة","إلغاء الحاجة إلى التسجيل في الدفتر","تحديد سعر الطابع البريدي"], correct:0, note:"الختم يوثّق بيانات الاستلام الأساسية فور وصول الرسالة (شكل 38)."},
+    {q:"أي نموذج يستخدمه المدير لتدوين توجيهاته على المعاملة؟", opts:["دفتر البريد الوارد","بطاقة توجيه وشرح","مذكرة متابعة","خَتم البريد الوارد"], correct:1, note:"بطاقة التوجيه والشرح (شكل 39) هي الأداة التي يُحيل بها المدير المعاملة مع تعليماته."},
+    {q:"ما الخطوة التي تسبق «التوزيع» مباشرة في إجراءات البريد الوارد؟", opts:["الفتح والفحص","الاستلام والفرز","العرض والتوجيه","الختم"], correct:2, note:"بعد عرض البريد على المسؤول وتدوين توجيهاته، يُوزَّع البريد وفق تلك التوجيهات."},
+    {q:"ما الذي يُسجَّل في دفتر البريد الوارد؟", opts:["رقم الوارد وتاريخه والجهة المرسِلة والموضوع والمرفقات","أرقام هواتف الموظفين","ميزانية الإدارة","جدول إجازات المكتب"], correct:0, note:"الدفتر (شكل 40) سجل رسمي لحركة كل رسالة واردة."},
+    {q:"متى تُرسَل مذكرة المتابعة؟", opts:["فور استلام أي رسالة", "عند تأخر ورود الرد على معاملة أُحيلت لإدارة معينة", "بدلًا من ختم البريد", "عند إرسال بريد صادر جديد فقط"], correct:1, note:"مذكرة المتابعة (شكل 41) تُذكّر الإدارة المعنية وتطلب إفادة بما اتُخذ بشأن المعاملة."},
+    {q:"بحسب القواعد العامة، متى يُستخدم البريد السريع؟", opts:["في جميع المراسلات دون استثناء", "في الحالات المستعجلة التي تتطلب سرعة الوصول أو الرد", "فقط في المراسلات الشخصية", "عند تعطّل دفتر البريد الوارد"], correct:1, note:"القاعدة الثانية تنص على استخدام البريد السريع في الحالات المستعجلة تحديدًا."}
+  ];
+  var qi = 0, score = 0, answered = false;
+  var quizArea = document.getElementById("quizArea");
+  var quizBar = document.getElementById("quizBar");
+
+  function renderQuiz(){
+    if(qi >= questions.length){
+      quizArea.innerHTML = '<div class="quiz-score"><div class="big">'+score+' / '+questions.length+'</div><p style="margin-top:8px; color:var(--ink-soft);">نتيجتك في الاختبار القصير</p><button class="primary-btn" id="retryQuiz" style="margin-top:18px;">إعادة المحاولة</button></div>';
+      quizBar.style.width = "100%";
+      document.getElementById("retryQuiz").addEventListener("click", function(){
+        qi = 0; score = 0; answered = false; renderQuiz();
+      });
+      return;
+    }
+    quizBar.style.width = Math.round((qi/questions.length)*100)+"%";
+    answered = false;
+    var q = questions[qi];
+    var html = '<div class="quiz-q"><h4>السؤال '+(qi+1)+' من '+questions.length+' — '+q.q+'</h4><div class="quiz-opts">';
+    q.opts.forEach(function(opt, idx){
+      html += '<button class="quiz-opt" data-idx="'+idx+'">'+opt+'</button>';
+    });
+    html += '</div><div class="quiz-explain" id="quizExplain">'+q.note+'</div>';
+    html += '<div class="quiz-nav"><span></span><button class="primary-btn" id="nextQ" disabled>السؤال التالي ▶</button></div></div>';
+    quizArea.innerHTML = html;
+
+    document.querySelectorAll(".quiz-opt").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        if(answered) return;
+        answered = true;
+        var idx = parseInt(this.dataset.idx, 10);
+        document.querySelectorAll(".quiz-opt").forEach(function(b){ b.disabled = true; });
+        if(idx === q.correct){
+          this.classList.add("correct");
+          score++;
+        } else {
+          this.classList.add("wrong");
+          document.querySelector('.quiz-opt[data-idx="'+q.correct+'"]').classList.add("correct");
+        }
+        document.getElementById("quizExplain").style.display = "block";
+        document.getElementById("nextQ").disabled = false;
+      });
+    });
+    document.getElementById("nextQ").addEventListener("click", function(){
+      qi++; renderQuiz();
+    });
+  }
+  renderQuiz();
+
+})();
+</script>
+
+</body>
+</html>
